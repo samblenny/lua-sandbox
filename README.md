@@ -42,5 +42,5 @@ Lua 5.4.7  Copyright (C) 1994-2024 Lua.org, PUC-Rio
 >> end
 > hex(0x55 & 0xF0)
 0x50
->
+> os.exit()
 ```
