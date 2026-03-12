@@ -9,7 +9,7 @@ This is a sandbox repo for me to experiment with Lua stuff.
 
 Install packages
 ```
-$ sudo apt install lua5.1 lua5.3 lua5.4 lua-check lua-inspect
+$ sudo apt install lua5.1 lua5.2 lua5.3 lua5.4 lua-check lua-inspect
 ```
 
 Debian includes various Lua versions, and the value of `/usr/bin/lua` gets set
@@ -30,6 +30,8 @@ lua-interpreter - auto mode
   slave lua-manual is /usr/share/man/man1/lua.1.gz
 /usr/bin/lua5.1 - priority 110
   slave lua-manual: /usr/share/man/man1/lua5.1.1.gz
+/usr/bin/lua5.2 - priority 120
+  slave lua-manual: /usr/share/man/man1/lua5.2.1.gz
 /usr/bin/lua5.3 - priority 120
   slave lua-manual: /usr/share/man/man1/lua5.3.1.gz
 /usr/bin/lua5.4 - priority 20
