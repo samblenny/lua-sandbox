@@ -18,7 +18,7 @@ function sorted_pairs(tbl)
   end)
   -- 2. Return iterator that traverses the keys in sorted order
   return coroutine.wrap(function ()
-    for _,k in pairs(keys) do
+    for _,k in ipairs(keys) do
       coroutine.yield(k, tbl[k])
     end
   end)
