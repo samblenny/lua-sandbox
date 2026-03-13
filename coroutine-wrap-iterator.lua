@@ -1,7 +1,6 @@
 -- Use coroutine.wrap to make a sorted table iterator
 
 local U = require 'util'; local printf = U.printf
-local I = require 'inspect'
 
 function sorted_pairs(tbl)
   -- 1. Generate sorted list of table keys using a sort comparison function
