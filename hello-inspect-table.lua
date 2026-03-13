@@ -32,7 +32,7 @@ end
 ]]
 
 --[[
-$ lua5.4 test01.lua 
+$ lua hello-inspect-table.lua
 Hello World!
 Hello World! with dots
 nil	1	1.2	3.4	5	true	false
