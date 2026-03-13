@@ -9,38 +9,22 @@ This is a sandbox repo for me to experiment with Lua stuff.
 
 Install packages
 ```
-$ sudo apt install lua5.1 lua5.2 lua5.3 lua5.4 lua-check lua-inspect love
+sudo apt install lua5.1 lua5.2 lua5.3 lua5.4 lua-check lua-inspect love
 ```
 
 Debian includes various Lua versions, and the value of `/usr/bin/lua` gets set
 by the Debian alternatives system. The lua5.3 package gets highest priority if
 it's installed:
 
+Check which lua version is being used
 ```
-$ readlink /usr/bin/lua
-/etc/alternatives/lua-interpreter
-$ readlink -f /usr/bin/lua
-/usr/bin/lua5.3
-$
-$ update-alternatives --display lua-interpreter
-lua-interpreter - auto mode
-  link best version is /usr/bin/lua5.3
-  link currently points to /usr/bin/lua5.3
-  link lua-interpreter is /usr/bin/lua
-  slave lua-manual is /usr/share/man/man1/lua.1.gz
-/usr/bin/lua5.1 - priority 110
-  slave lua-manual: /usr/share/man/man1/lua5.1.1.gz
-/usr/bin/lua5.2 - priority 120
-  slave lua-manual: /usr/share/man/man1/lua5.2.1.gz
-/usr/bin/lua5.3 - priority 120
-  slave lua-manual: /usr/share/man/man1/lua5.3.1.gz
-/usr/bin/lua5.4 - priority 20
-  slave lua-manual: /usr/share/man/man1/lua5.4.1.gz
+readlink -f /usr/bin/lua
+update-alternatives --display lua-interpreter
 ```
 
 Install TigerVNC (this is for running love2d)
 ```
-sudo apt install tigervnc-standalone-server openbox
+sudo apt install tigervnc-standalone-server openbox xterm
 # Set password to 123456 or whatever (gets stored to .vnc/passwd)
 tigervncpasswd
 # Make a config file, mainly to override the localhost-only default
