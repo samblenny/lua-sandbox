@@ -34,3 +34,14 @@ while true do
     break
   end
 end
+
+--[[
+$ lua number-game.lua 
+Pick a number between 0 and 100: 50
+50 is too low, try again: 75
+75 is too low, try again: 87
+87 is too high, try again: 81
+81 is too low, try again: 84
+You guessed right!
+Go again? [Y/n]: n
+--]]
