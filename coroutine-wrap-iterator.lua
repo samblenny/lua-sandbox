@@ -3,12 +3,13 @@
 local U = require 'util'; local printf = U.printf
 
 function sorted_pairs(tbl)
-  -- 1. Generate sorted list of table keys using a sort comparison function
-  --    that allows mixed key types
+  -- 1. Generate list of table keys
   local keys = {}
-  for k,v in pairs(tbl) do
-    table.insert(keys, k)
+  for k in pairs(tbl) do
+    keys[#keys+1] = k
   end
+
+  -- 2. Sort keys with comparison function that handles mixed key types
   table.sort(keys, function(a,b)
     if type(a) == type(b) then
       return a < b
@@ -16,7 +17,10 @@ function sorted_pairs(tbl)
       return type(a) < type(b)
     end
   end)
-  -- 2. Return iterator that traverses the keys in sorted order
+
+  -- 3. Return iterator that traverses the keys in sorted order
+  --    NOTE: This may be slower than using a regular closure, but the point
+  --          here is to demonstrate coroutine iterators.
   return coroutine.wrap(function ()
     for _,k in ipairs(keys) do
       coroutine.yield(k, tbl[k])
@@ -27,7 +31,7 @@ end
 -- Make a mixed table with integer and string keys
 local t = {1, 2, 3, 4, once = "upon", a = "midnight", dreary = "while"}
 
--- Printed it sorted by keys
+-- Printed table sorted by keys
 for k,v in sorted_pairs(t) do
   printf("k='%s', v='%s'", k, v)
 end
