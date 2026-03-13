@@ -5,7 +5,7 @@ local U = require 'util'; local printf = U.printf
 function sorted_pairs(tbl)
   -- 1. Generate sorted list of table keys using a sort comparison function
   --    that allows mixed key types
-  keys = {}
+  local keys = {}
   for k,v in pairs(tbl) do
     table.insert(keys, k)
   end
