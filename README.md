@@ -67,10 +67,11 @@ Tune Pi Zero 2 W sysctl config for VNC performance and reduced SD card writes
 cat <<'EOF' | sudo tee /etc/sysctl.d/99-pi-tuning.conf
 # Swap less compared to the default of 60
 vm.swappiness=10
-# Delay SD card writes
-vm.dirty_writeback_centisecs=3000
-vm.dirty_ratio=15
-vm.dirty_background_ratio=5
+# Balance latency with avoiding SD card write amplification
+vm.dirty_writeback_centisecs=1500
+vm.dirty_expire_centisecs=4500
+vm.dirty_ratio=12
+vm.dirty_background_ratio=4
 # Disable NMI watchdog
 kernel.nmi_watchdog=0
 # Pi Zero 2 W - USB gadget tuning for VNC
