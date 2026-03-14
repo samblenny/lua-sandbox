@@ -25,21 +25,25 @@ update-alternatives --display lua-interpreter
 Install TigerVNC (this is for running love2d)
 ```
 sudo apt install tigervnc-standalone-server openbox xterm
-# Set password to 123456 or whatever (gets stored to .vnc/passwd)
+
+# Set password to 123456 or whatever (stored in ~/.config/tigervnc/passwd)
 tigervncpasswd
-# Make a config file, mainly to override the localhost-only default
+
+# Make a config file, mainly to override the localhost default
 mkdir -p $HOME/.config/tigervnc
 cat <<'EOF' > ~/.config/tigervnc/config.pl
 $geometry = "640x480";
-$depth = "24";
+$depth = "16";
 $localhost = "no";
 $SecurityTypes = "VncAuth";
 EOF
+
 # Add VNC start/stop convenience functions to .bashrc
 cat <<'EOF' >> ~/.bashrc
 function vnc-start() { tigervncserver :1; }
 function vnc-stop() { tigervncserver -kill :1; }
 EOF
+
 # Set OpenBox desktop background color
 mkdir -p ~/.config/openbox
 cat <<'EOF' >> ~/.config/openbox/autostart.sh
