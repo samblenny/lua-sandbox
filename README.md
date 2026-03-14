@@ -34,9 +34,14 @@ tigervncpasswd
 mkdir -p $HOME/.config/tigervnc
 cat <<'EOF' > ~/.config/tigervnc/config.pl
 $geometry = "640x480";
-$depth = "16";
+#$geometry = "800x600";
+#$geometry = "1024x768";
 $localhost = "no";
 $SecurityTypes = "VncAuth";
+# Pi Zero 2 W Performance Tuning:
+# - For high screen activity, depth=16 saves ~25% CPU vs depth=24
+# - Changing CompareFB and/or ImprovedHextile makes no noticable CPU impact
+$depth = "16";
 EOF
 
 # Add VNC start/stop convenience functions to .bashrc
