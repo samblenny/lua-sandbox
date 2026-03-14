@@ -26,7 +26,8 @@ Install TigerVNC (this is for running love2d)
 ```
 sudo apt install tigervnc-standalone-server openbox xterm
 
-# Set password to 123456 or whatever (stored in ~/.config/tigervnc/passwd)
+# Set VNC password to 123456 or whatever
+# The hashed password gets stored in ~/.config/tigervnc/passwd
 tigervncpasswd
 
 # Make a config file, mainly to override the localhost default
