@@ -1,3 +1,4 @@
+-- luacheck: globals love
 local lg = love.graphics
 local unpack = unpack or table.unpack  -- table.unpack not present in Lua 5.1
 local circle = lg.circle
@@ -15,7 +16,7 @@ local palette = { fill={0.3,0.9,0.3}, bg={0.6,0.2,0.7}, stroke={0.3,0.3,0.3} }
 
 -- Generate a new ball with randomized initial values
 -- This recycles old balls in a ring buffer
-function throwBall(ball)
+local function throwBall()
   local vx = math.random(20, 200)
   if math.random() < 0.5 then
     vx = vx * -1
@@ -30,9 +31,8 @@ function throwBall(ball)
   else
     -- Recycle the oldest slot of full ring buffer
     last = first
-    first = (first + 1) % #balls
-    if first == 0 then first=#balls end  -- adjust for Lua's 1-based indexing
-    b = balls[last]
+    first = (first % #balls) + 1  -- Lua uses 1-based indexing
+    local b = balls[last]
     b.x=x
     b.y=0
     b.vx=vx
@@ -42,8 +42,50 @@ function throwBall(ball)
 end
 
 -- Set Color helper
-function c(color)
+local function c(color)
   lg.setColor(unpack(color))
+end
+
+-- Do physics for 1 ball
+local function updateBall(b, dt)
+  -- Velocity gets acceleration from gravity
+  b.vy = b.vy + gravity * dt
+
+  -- Position gets displacement from velocity
+  b.x = b.x + b.vx * dt
+  b.y = b.y + b.vy * dt
+
+  -- Adjust position and velocity for bounces
+  local r = b.r
+  if b.y > box.y2 - r then  -- floor
+    b.y = box.y2 - r
+    b.vy = -b.vy * damping
+    if math.abs(b.vy) < epsilon then  -- clamp low vy to 0
+      b.vy = 0
+      b.y = box.y2 - r
+    end
+  end
+  if b.y < box.y1 + r then  -- ceiling
+    b.y = r
+    b.vy = -b.vy * damping
+  end
+  if b.x > box.x2 - r then  -- left wall
+    b.x = box.x2 - r
+    b.vx = -b.vx * damping
+  end
+  if b.x < box.x1 + r then  -- right wall
+    b.x = r
+    b.vx = -b.vx * damping
+  end
+
+  -- Rolling friction when touching floor
+  if math.abs((box.y2 - r) - b.y) < epsilon and b.vy < epsilon then
+    b.vx = b.vx * friction
+    if math.abs(b.vx) < epsilon then
+      b.vx = 0
+      b.vy = 0
+    end
+  end
 end
 
 -- Init
@@ -67,11 +109,11 @@ function love.update(dt)
   love.timer.sleep(1/24)  -- cap fps to avoid saturating CPU
 end
 
-function drawBall(b)
-    c(palette.fill)
-    circle("fill", b.x, b.y, b.r)
-    c(palette.stroke)
-    circle("line", b.x, b.y, b.r)
+local function drawBall(b)
+  c(palette.fill)
+  circle("fill", b.x, b.y, b.r)
+  c(palette.stroke)
+  circle("line", b.x, b.y, b.r)
 end
 
 -- Draw frame
@@ -99,49 +141,6 @@ function love.keypressed(key)
     love.event.quit()
   elseif key == 'space' then  -- press space to drop a new ball
     throwBall()
-  end
-end
-
--- Do physics for 1 ball
-function updateBall(b, dt)
-  -- Velocity gets acceleration from gravity
-  b.vy = b.vy + gravity * dt
-
-  -- Position gets displacement from velocity
-  b.x = b.x + b.vx * dt
-  b.y = b.y + b.vy * dt
-
-  -- Adjust position and velocity for bounces
-  local r = b.r
-  if b.y > box.y2 - r then  -- floor
-    b.y = box.y2 - r
-    b.vy = -b.vy * damping
-    if math.abs(b.vy) < epsilon then  -- clamp low vy to 0
-      b.vy = 0
-      b.y = box.y2 - r
-    end
-  else
-  end
-  if b.y < box.y1 + r then  -- ceiling
-    b.y = r
-    b.vy = -b.vy * damping
-  end
-  if b.x > box.x2 - r then  -- left wall
-    b.x = box.x2 - r
-    b.vx = -b.vx * damping
-  end
-  if b.x < box.x1 + r then  -- right wall
-    b.x = r
-    b.vx = -b.vx * damping
-  end
-
-  -- Rolling friction when touching floor
-  if math.abs((box.y2 - r) - b.y) < epsilon and b.vy < epsilon then
-    b.vx = b.vx * friction
-    if math.abs(b.vx) < epsilon then
-      b.vx = 0
-      b.vy = 0
-    end
   end
 end
 
