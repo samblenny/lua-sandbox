@@ -1,22 +1,44 @@
 local lg = love.graphics
 local unpack = unpack or table.unpack  -- table.unpack not present in Lua 5.1
+local circle = lg.circle
 
 local balls = {}
-local gravity = 199
+local maxBalls = 99
+local ballSpawnPeriod = 1/5  -- unit is seconds
+local first,last = 1,1
+local epsilon = 1e-5
+local gravity = 399
 local friction = 0.8
 local damping = 0.85
 local box = { x1=0, x2=lg.getWidth(), y1=0, y2=lg.getHeight() }
 local palette = { fill={0.3,0.9,0.3}, bg={0.6,0.2,0.7}, stroke={0.3,0.3,0.3} }
 
 -- Generate a new ball with randomized initial values
-function newBall()
+-- This recycles old balls in a ring buffer
+function throwBall(ball)
   local vx = math.random(20, 200)
   if math.random() < 0.5 then
     vx = vx * -1
   end
   local r = math.random(8, 24)
   local x = r/2
-  return { x=x, y=0, vx=vx, vy=0, r=r }
+
+  if #balls < maxBalls then
+    -- Add the ball to the not-yet-full ring buffer
+    last = #balls + 1
+    balls[last] = { x=x, y=0, vx=vx, vy=0, r=r }
+  else
+    -- Recycle the oldest slot of full ring buffer
+    last = first
+    first = (first + 1) % #balls
+    if first == 0 then first=#balls end  -- adjust for Lua's 1-based indexing
+    b = balls[last]
+    b.x=x
+    b.y=0
+    b.vx=vx
+    b.vy=0
+    b.r=r
+  end
 end
 
 -- Set Color helper
@@ -27,28 +49,47 @@ end
 -- Init
 function love.load()
   lg.setBackgroundColor(unpack(palette.bg))
-  balls[#balls+1] = newBall()
+  throwBall()
   print("type 'q' to quit")
 end
 
 -- Update state
+local spawnTimer = 0
 function love.update(dt)
+  spawnTimer = spawnTimer + dt
+  if spawnTimer >= ballSpawnPeriod then
+    spawnTimer = spawnTimer - ballSpawnPeriod
+    throwBall()
+  end
   for _, ball in ipairs(balls) do
     updateBall(ball, dt)
   end
   love.timer.sleep(1/24)  -- cap fps to avoid saturating CPU
 end
 
+function drawBall(b)
+    c(palette.fill)
+    circle("fill", b.x, b.y, b.r)
+    c(palette.stroke)
+    circle("line", b.x, b.y, b.r)
+end
+
 -- Draw frame
 function love.draw()
-  local fill,stroke = palette.fill, palette.stroke
-  local circle = lg.circle
   lg.setLineWidth(1)
-  for _, ball in ipairs(balls) do
-    c(fill)
-    circle("fill", ball.x, ball.y, ball.r)
-    c(stroke)
-    circle("line", ball.x, ball.y, ball.r)
+  if first <= last then
+    -- Ring buffer has not wrapped yet, so draw it all in one pass
+    for i = first,last do
+      drawBall(balls[i])
+    end
+  else
+    -- Ring buffer has wrapped, so draw two chunks to get the order right
+    for i = first,#balls do
+      drawBall(balls[i])
+    end
+    for i = 1,last do
+      drawBall(balls[i])
+    end
   end
 end
 
@@ -57,7 +98,7 @@ function love.keypressed(key)
   if key == 'q' then  -- press q to quit
     love.event.quit()
   elseif key == 'space' then  -- press space to drop a new ball
-    balls[#balls+1] = newBall()
+    throwBall()
   end
 end
 
@@ -71,7 +112,6 @@ function updateBall(b, dt)
   b.y = b.y + b.vy * dt
 
   -- Adjust position and velocity for bounces
-  local epsilon = 1e-5
   local r = b.r
   if b.y > box.y2 - r then  -- floor
     b.y = box.y2 - r
@@ -98,7 +138,10 @@ function updateBall(b, dt)
   -- Rolling friction when touching floor
   if math.abs((box.y2 - r) - b.y) < epsilon and b.vy < epsilon then
     b.vx = b.vx * friction
-    if math.abs(b.vx) < epsilon then b.vx = 0 end
+    if math.abs(b.vx) < epsilon then
+      b.vx = 0
+      b.vy = 0
+    end
   end
 end
 
